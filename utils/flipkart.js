@@ -51,7 +51,16 @@ function findNestedObj(entireObj) {
 module.exports = (url) =>
   new Promise((resolve, reject) => {
     axios
-      .get(url)
+      .get(url, {
+        headers: {
+          "User-Agent": "PostmanRuntime/7.32.3",
+          Accept: "*/*",
+          "Accept-Encoding": "gzip, deflate, br",
+          Connection: "keep-alive",
+        },
+        method: "get",
+        maxBodyLength: Infinity,
+      })
       .then((response) => {
         const $ = cheerio.load(response.data);
         const elem = $("script#is_script")
@@ -65,6 +74,6 @@ module.exports = (url) =>
       })
       .catch((e) => {
         // console.log(e);
-        reject();
+        reject(e);
       });
   });

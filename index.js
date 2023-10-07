@@ -2,7 +2,9 @@ const logger = require("debug")("scrapper:main");
 const Ticker = require("./utils/ticker");
 const flipkartScrapper = require("./utils/flipkart");
 
-const TICKER_DURATION = 60 * 1000;
+const TICKER_DURATION = process.env.TICKER_DURATION
+  ? parseInt(process.env.TICKER_DURATION)
+  : 60 * 1000;
 
 const URLS = [
   // pro 256GB
@@ -27,14 +29,15 @@ async function handler() {
   try {
     for (const url of URLS) {
       const response = await flipkartScrapper(url);
-      logger(response);
+      console.log("response:", response);
     }
   } catch (e) {
-    logger(e);
+    // console.log("error:", e);
   }
 }
 
 (async function () {
+  logger("TICKER_DURATION:", TICKER_DURATION);
   const ticker = new Ticker(handler, TICKER_DURATION);
   ticker.run();
 })();
