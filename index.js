@@ -35,8 +35,13 @@ async function handler() {
       logger(url);
       //   const response = await flipkartScrapper(url);
       const response = await ecomScrapper.getProductDetails(url, "flipkart");
-      if (response && response.ok && response.availability != "Sold Out") {
-        await notify(`${response.link} @ ${response.price}`);
+      if (
+        response &&
+        response.ok &&
+        !["Sold Out", "Coming Soon"].includes(response.availability)
+      ) {
+        logger("Availability:", response);
+        // await notify(`${response.link} @ ${response.price}`);
         logger("Notification sent");
       }
       //   logger("response:", response);
@@ -68,6 +73,8 @@ async function notify(message) {
 
 (async function () {
   logger("TICKER_DURATION:", TICKER_DURATION);
+  logger("API_KEY:", process.env.API_KEY);
+  logger("PHONE_NUMBER:", process.env.PHONE_NUMBER);
   const ticker = new Ticker(handler, TICKER_DURATION);
   ticker.run();
 })();
