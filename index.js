@@ -1,6 +1,10 @@
+require("dotenv").config();
+// logger(process.env);
+const axios = require("axios");
 const logger = require("debug")("scrapper:main");
 const Ticker = require("./utils/ticker");
-const flipkartScrapper = require("./utils/flipkart");
+// const flipkartScrapper = require("./utils/flipkart");
+const ecomScrapper = require("./utils/ecom");
 
 const TICKER_DURATION = process.env.TICKER_DURATION
   ? parseInt(process.env.TICKER_DURATION)
@@ -28,12 +32,38 @@ async function handler() {
   logger("starting handler");
   try {
     for (const url of URLS) {
-      const response = await flipkartScrapper(url);
-      console.log("response:", response);
+      logger(url);
+      //   const response = await flipkartScrapper(url);
+      const response = await ecomScrapper.getProductDetails(url, "flipkart");
+      if (response && response.ok && response.availability != "Sold Out") {
+        await notify(`${response.link} @ ${response.price}`);
+        logger("Notification sent");
+      }
+      //   logger("response:", response);
     }
   } catch (e) {
-    // console.log("error:", e);
+    logger("error:", e);
   }
+}
+
+async function notify(message) {
+  logger(message);
+  return axios({
+    method: "post",
+    url: "https://api.brevo.com/v3/transactionalSMS/sms",
+    headers: {
+      accept: "application/json",
+      "api-key": process.env.API_KEY,
+      "content-type": "application/json",
+    },
+    data: {
+      type: "transactional",
+      unicodeEnabled: false,
+      recipient: process.env.PHONE_NUMBER,
+      sender: "ecomscrap",
+      content: message,
+    },
+  });
 }
 
 (async function () {

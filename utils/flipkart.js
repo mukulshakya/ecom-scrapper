@@ -41,7 +41,7 @@ function findNestedObj(entireObj) {
       return nestedValue;
     });
   } catch (e) {
-    // console.log(e);
+    // logger(e);
   } finally {
     if (finalObj.pricing) finalObj.pricing = parseInt(finalObj.pricing);
     return finalObj;
@@ -73,7 +73,7 @@ module.exports = (url) =>
         resolve(found);
       })
       .catch((e) => {
-        // console.log(e);
+        // logger(e);
         reject(e);
       });
   });
